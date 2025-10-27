@@ -9,6 +9,7 @@ from data.datasets.ltcc import LTCC
 from data.datasets.prcc import PRCC
 from data.datasets.last import LaST
 from data.datasets.ccvid import CCVID
+from data.datasets.casiab import CASIAB
 from data.datasets.deepchange import DeepChange
 from data.datasets.vcclothes import VCClothes, VCClothesSameClothes, VCClothesClothesChanging
 
@@ -21,10 +22,11 @@ __factory = {
     'vcclothes_cc': VCClothesClothesChanging,
     'last': LaST,
     'ccvid': CCVID,
+    'casiab': CASIAB,
     'deepchange': DeepChange,
 }
 
-VID_DATASET = ['ccvid']
+VID_DATASET = ['ccvid', 'casiab']
 
 
 def get_names():
