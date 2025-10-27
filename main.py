@@ -12,7 +12,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torch import distributed as dist
-from apex import amp
+# from apex import amp  <-- 1. 删除这一行
+from torch.cuda.amp import GradScaler # <-- 2. 添加这一行
 
 from configs.default_img import get_img_config
 from configs.default_vid import get_vid_config
@@ -107,11 +108,16 @@ def main(config):
     else:
         clothes_classifier = clothes_classifier.cuda(local_rank)
     torch.cuda.set_device(local_rank)
+    pid2clothes = pid2clothes.cuda(local_rank)
 
-    if config.TRAIN.AMP:
-        [model, classifier], optimizer = amp.initialize([model, classifier], optimizer, opt_level="O1")
-        if config.LOSS.CAL != 'calwithmemory':
-            clothes_classifier, optimizer_cc = amp.initialize(clothes_classifier, optimizer_cc, opt_level="O1")
+    # 3. 删除整个 amp.initialize 代码块.
+    # if config.TRAIN.AMP:
+    #     [model, classifier], optimizer = amp.initialize([model, classifier], optimizer, opt_level="O1")
+    #     if config.LOSS.CAL != 'calwithmemory':
+    #         clothes_classifier, optimizer_cc = amp.initialize(clothes_classifier, optimizer_cc, opt_level="O1")
+
+    # 4. 创建一个 GradScaler 实例. enabled 参数会根据你的 --amp 标志自动开关混合精度.
+    scaler = GradScaler(enabled=config.TRAIN.AMP)
 
     model = nn.parallel.DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank)
     classifier = nn.parallel.DistributedDataParallel(classifier, device_ids=[local_rank], output_device=local_rank)
@@ -136,11 +142,13 @@ def main(config):
         train_sampler.set_epoch(epoch)
         start_train_time = time.time()
         if config.LOSS.CAL == 'calwithmemory':
+            # 5. 将 scaler 传递给训练函数
             train_cal_with_memory(config, epoch, model, classifier, criterion_cla, criterion_pair, 
-                criterion_adv, optimizer, trainloader, pid2clothes)
+                criterion_adv, optimizer, trainloader, pid2clothes, scaler)
         else:
+            # 5. 将 scaler 传递给训练函数
             train_cal(config, epoch, model, classifier, clothes_classifier, criterion_cla, criterion_pair, 
-                criterion_clothes, criterion_adv, optimizer, optimizer_cc, trainloader, pid2clothes)
+                criterion_clothes, criterion_adv, optimizer, optimizer_cc, trainloader, pid2clothes, scaler)
         train_time += round(time.time() - start_train_time)        
         
         if (epoch+1) > config.TEST.START_EVAL and config.TEST.EVAL_STEP > 0 and \

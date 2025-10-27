@@ -2,6 +2,7 @@ import random
 import math
 import numbers
 import collections
+from collections.abc import Iterable
 import numpy as np
 import torch
 import torchvision.transforms as T
@@ -139,7 +140,7 @@ class Scale(object):
     """
 
     def __init__(self, size, interpolation=Image.BILINEAR):
-        assert isinstance(size, int) or (isinstance(size, collections.Iterable) and len(size) == 2)
+        assert isinstance(size, int) or (isinstance(size, Iterable) and len(size) == 2)
         self.size = size
         self.interpolation = interpolation
 
