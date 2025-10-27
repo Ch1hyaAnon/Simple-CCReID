@@ -3977,7 +3977,6 @@ track_seq/037/bg-02/072 037 072
 track_seq/037/bg-02/090 037 090
 track_seq/037/bg-02/108 037 108
 track_seq/037/bg-02/126 037 126
-track_seq/037/bg-02/144 037 144
 track_seq/037/bg-02/162 037 162
 track_seq/037/bg-02/180 037 180
 track_seq/037/cl-01/000 037 000
@@ -4827,7 +4826,6 @@ track_seq/044/nm-05/126 044 126
 track_seq/044/nm-05/144 044 144
 track_seq/044/nm-05/162 044 162
 track_seq/044/nm-05/180 044 180
-track_seq/044/nm-06/000 044 000
 track_seq/044/nm-06/018 044 018
 track_seq/044/nm-06/036 044 036
 track_seq/044/nm-06/054 044 054
@@ -5542,14 +5540,11 @@ track_seq/051/cl-02/126 051 126
 track_seq/051/cl-02/144 051 144
 track_seq/051/cl-02/162 051 162
 track_seq/051/cl-02/180 051 180
-track_seq/051/nm-01/000 051 000
-track_seq/051/nm-01/018 051 018
 track_seq/051/nm-01/036 051 036
 track_seq/051/nm-01/054 051 054
 track_seq/051/nm-01/072 051 072
 track_seq/051/nm-01/090 051 090
 track_seq/051/nm-01/108 051 108
-track_seq/051/nm-01/126 051 126
 track_seq/051/nm-01/144 051 144
 track_seq/051/nm-01/162 051 162
 track_seq/051/nm-01/180 051 180
@@ -7094,7 +7089,6 @@ track_seq/065/nm-01/144 065 144
 track_seq/065/nm-01/162 065 162
 track_seq/065/nm-01/180 065 180
 track_seq/065/nm-02/000 065 000
-track_seq/065/nm-02/018 065 018
 track_seq/065/nm-02/036 065 036
 track_seq/065/nm-02/054 065 054
 track_seq/065/nm-02/072 065 072
@@ -8541,7 +8535,6 @@ track_seq/078/nm-03/054 078 054
 track_seq/078/nm-03/072 078 072
 track_seq/078/nm-03/090 078 090
 track_seq/078/nm-03/108 078 108
-track_seq/078/nm-03/126 078 126
 track_seq/078/nm-03/144 078 144
 track_seq/078/nm-03/162 078 162
 track_seq/078/nm-03/180 078 180
@@ -8592,7 +8585,6 @@ track_seq/079/bg-01/180 079 180
 track_seq/079/bg-02/000 079 000
 track_seq/079/bg-02/018 079 018
 track_seq/079/bg-02/036 079 036
-track_seq/079/bg-02/054 079 054
 track_seq/079/bg-02/072 079 072
 track_seq/079/bg-02/090 079 090
 track_seq/079/bg-02/108 079 108
@@ -11929,10 +11921,6 @@ track_seq/109/nm-01/054 109 054
 track_seq/109/nm-01/072 109 072
 track_seq/109/nm-01/090 109 090
 track_seq/109/nm-01/108 109 108
-track_seq/109/nm-01/126 109 126
-track_seq/109/nm-01/144 109 144
-track_seq/109/nm-01/162 109 162
-track_seq/109/nm-01/180 109 180
 track_seq/109/nm-02/000 109 000
 track_seq/109/nm-02/018 109 018
 track_seq/109/nm-02/036 109 036
@@ -11940,10 +11928,6 @@ track_seq/109/nm-02/054 109 054
 track_seq/109/nm-02/072 109 072
 track_seq/109/nm-02/090 109 090
 track_seq/109/nm-02/108 109 108
-track_seq/109/nm-02/126 109 126
-track_seq/109/nm-02/144 109 144
-track_seq/109/nm-02/162 109 162
-track_seq/109/nm-02/180 109 180
 track_seq/109/nm-03/000 109 000
 track_seq/109/nm-03/018 109 018
 track_seq/109/nm-03/036 109 036
@@ -11951,8 +11935,6 @@ track_seq/109/nm-03/054 109 054
 track_seq/109/nm-03/072 109 072
 track_seq/109/nm-03/090 109 090
 track_seq/109/nm-03/108 109 108
-track_seq/109/nm-03/126 109 126
-track_seq/109/nm-03/144 109 144
 track_seq/109/nm-03/162 109 162
 track_seq/109/nm-03/180 109 180
 track_seq/109/nm-04/000 109 000
@@ -11962,10 +11944,6 @@ track_seq/109/nm-04/054 109 054
 track_seq/109/nm-04/072 109 072
 track_seq/109/nm-04/090 109 090
 track_seq/109/nm-04/108 109 108
-track_seq/109/nm-04/126 109 126
-track_seq/109/nm-04/144 109 144
-track_seq/109/nm-04/162 109 162
-track_seq/109/nm-04/180 109 180
 track_seq/109/nm-05/000 109 000
 track_seq/109/nm-05/018 109 018
 track_seq/109/nm-05/036 109 036
@@ -11997,7 +11975,6 @@ track_seq/110/bg-01/090 110 090
 track_seq/110/bg-01/108 110 108
 track_seq/110/bg-01/126 110 126
 track_seq/110/bg-01/144 110 144
-track_seq/110/bg-01/162 110 162
 track_seq/110/bg-01/180 110 180
 track_seq/110/bg-02/000 110 000
 track_seq/110/bg-02/018 110 018
@@ -13091,7 +13068,6 @@ track_seq/119/nm-06/180 119 180
 track_seq/120/bg-01/000 120 000
 track_seq/120/bg-01/018 120 018
 track_seq/120/bg-01/036 120 036
-track_seq/120/bg-01/054 120 054
 track_seq/120/bg-01/072 120 072
 track_seq/120/bg-01/090 120 090
 track_seq/120/bg-01/108 120 108
@@ -13107,7 +13083,6 @@ track_seq/120/bg-02/072 120 072
 track_seq/120/bg-02/090 120 090
 track_seq/120/bg-02/108 120 108
 track_seq/120/bg-02/126 120 126
-track_seq/120/bg-02/144 120 144
 track_seq/120/bg-02/162 120 162
 track_seq/120/bg-02/180 120 180
 track_seq/120/cl-01/000 120 000
