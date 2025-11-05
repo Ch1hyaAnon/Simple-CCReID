@@ -126,7 +126,7 @@ _C.EVAL_MODE = False
 # GPU device ids for CUDA_VISIBLE_DEVICES
 _C.GPU = '0, 1'
 # Path to output folder, overwritten by command line argument
-_C.OUTPUT = '/home/wux04/workspace/Data/CCVID/logs/'
+_C.OUTPUT = '/home/wux04/workspace/Data/CASIAB/logs/'
 # Tag of experiment, overwritten by command line argument
 _C.TAG = 'res50-ce-cal'
 

@@ -6,10 +6,11 @@ import torch
 from torch.cuda.amp import autocast # <-- 2. 添加这一行
 from tools.utils import AverageMeter
 
+from tqdm import tqdm # <-- 1. 导入 tqdm
 
 # 3. 在函数定义中添加 scaler 参数
 def train_cal(config, epoch, model, classifier, clothes_classifier, criterion_cla, criterion_pair, 
-    criterion_clothes, criterion_adv, optimizer, optimizer_cc, trainloader, pid2clothes, scaler):
+    criterion_clothes, criterion_adv, optimizer, optimizer_cc, trainloader, pid2clothes, scaler, writer=None):
     logger = logging.getLogger('reid.train')
     batch_cla_loss = AverageMeter()
     batch_pair_loss = AverageMeter()
@@ -24,8 +25,10 @@ def train_cal(config, epoch, model, classifier, clothes_classifier, criterion_cl
     classifier.train()
     clothes_classifier.train()
 
+    total_batches = len(trainloader)
     end = time.time()
-    for batch_idx, (imgs, pids, camids, clothes_ids) in enumerate(trainloader):
+    # 2. 在 for 循环中用 tqdm 包装 trainloader
+    for batch_idx, (imgs, pids, camids, clothes_ids) in enumerate(tqdm(trainloader, desc=f"Epoch {epoch+1}/{config.TRAIN.MAX_EPOCH} Training")):
         # Get all positive clothes classes (belonging to the same identity) for each sample
         pos_mask = pid2clothes[pids]
         imgs, pids, clothes_ids, pos_mask = imgs.cuda(), pids.cuda(), clothes_ids.cuda(), pos_mask.float().cuda()
@@ -96,6 +99,15 @@ def train_cal(config, epoch, model, classifier, clothes_classifier, criterion_cl
         batch_time.update(time.time() - end)
         end = time.time()
 
+        if writer is not None:
+            global_step = epoch * total_batches + batch_idx
+            writer.add_scalar('loss/cla', cla_loss.item(), global_step)
+            writer.add_scalar('loss/pair', pair_loss.item(), global_step)
+            writer.add_scalar('loss/clothes', clothes_loss.item(), global_step)
+            writer.add_scalar('loss/adv', adv_loss.item(), global_step)
+            writer.add_scalar('accuracy/id', corrects.val, global_step)
+            writer.add_scalar('accuracy/clothes', clothes_corrects.val, global_step)
+
     logger.info('Epoch{0} '
                   'Time:{batch_time.sum:.1f}s '
                   'Data:{data_time.sum:.1f}s '
@@ -110,10 +122,20 @@ def train_cal(config, epoch, model, classifier, clothes_classifier, criterion_cl
                    clo_loss=batch_clo_loss, adv_loss=batch_adv_loss, 
                    acc=corrects, clo_acc=clothes_corrects))
 
+    if writer is not None:
+        step = epoch + 1
+        writer.add_scalar('epoch_loss/cla', batch_cla_loss.avg, step)
+        writer.add_scalar('epoch_loss/pair', batch_pair_loss.avg, step)
+        writer.add_scalar('epoch_loss/clothes', batch_clo_loss.avg, step)
+        writer.add_scalar('epoch_loss/adv', batch_adv_loss.avg, step)
+        writer.add_scalar('epoch_acc/id', corrects.avg, step)
+        writer.add_scalar('epoch_acc/clothes', clothes_corrects.avg, step)
+        writer.flush()
+
 
 # 3. 在函数定义中添加 scaler 参数
 def train_cal_with_memory(config, epoch, model, classifier, criterion_cla, criterion_pair, 
-    criterion_adv, optimizer, trainloader, pid2clothes, scaler):
+    criterion_adv, optimizer, trainloader, pid2clothes, scaler, writer=None):
     logger = logging.getLogger('reid.train')
     batch_cla_loss = AverageMeter()
     batch_pair_loss = AverageMeter()
@@ -125,8 +147,10 @@ def train_cal_with_memory(config, epoch, model, classifier, criterion_cla, crite
     model.train()
     classifier.train()
 
+    total_batches = len(trainloader)
     end = time.time()
-    for batch_idx, (imgs, pids, camids, clothes_ids) in enumerate(trainloader):
+    # 2. 在 for 循环中用 tqdm 包装 trainloader
+    for batch_idx, (imgs, pids, camids, clothes_ids) in enumerate(tqdm(trainloader, desc=f"Epoch {epoch+1}/{config.TRAIN.MAX_EPOCH} Training")):
         # Get all positive clothes classes (belonging to the same identity) for each sample
         pos_mask = pid2clothes[pids]
         imgs, pids, clothes_ids, pos_mask = imgs.cuda(), pids.cuda(), clothes_ids.cuda(), pos_mask.float().cuda()
@@ -136,6 +160,7 @@ def train_cal_with_memory(config, epoch, model, classifier, criterion_cla, crite
         optimizer.zero_grad()
         
         # 4. 使用 autocast 包裹前向传播和损失计算
+        adv_loss = None
         with autocast(enabled=config.TRAIN.AMP):
             # Forward
             features = model(imgs)
@@ -167,6 +192,14 @@ def train_cal_with_memory(config, epoch, model, classifier, criterion_cla, crite
         batch_time.update(time.time() - end)
         end = time.time()
 
+        if writer is not None:
+            global_step = epoch * total_batches + batch_idx
+            writer.add_scalar('loss/cla', cla_loss.item(), global_step)
+            writer.add_scalar('loss/pair', pair_loss.item(), global_step)
+            adv_scalar = adv_loss.item() if adv_loss is not None else 0.0
+            writer.add_scalar('loss/adv', adv_scalar, global_step)
+            writer.add_scalar('accuracy/id', corrects.val, global_step)
+
     logger.info('Epoch{0} '
                 'Time:{batch_time.sum:.1f}s '
                 'Data:{data_time.sum:.1f}s '
@@ -177,3 +210,11 @@ def train_cal_with_memory(config, epoch, model, classifier, criterion_cla, crite
                 epoch+1, batch_time=batch_time, data_time=data_time, 
                 cla_loss=batch_cla_loss, pair_loss=batch_pair_loss, 
                 adv_loss=batch_adv_loss, acc=corrects))
+
+    if writer is not None:
+        step = epoch + 1
+        writer.add_scalar('epoch_loss/cla', batch_cla_loss.avg, step)
+        writer.add_scalar('epoch_loss/pair', batch_pair_loss.avg, step)
+        writer.add_scalar('epoch_loss/adv', batch_adv_loss.avg, step)
+        writer.add_scalar('epoch_acc/id', corrects.avg, step)
+        writer.flush()

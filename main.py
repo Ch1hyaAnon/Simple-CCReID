@@ -14,6 +14,7 @@ from torch.optim import lr_scheduler
 from torch import distributed as dist
 # from apex import amp  <-- 1. 删除这一行
 from torch.cuda.amp import GradScaler # <-- 2. 添加这一行
+from torch.utils.tensorboard import SummaryWriter
 
 from configs.default_img import get_img_config
 from configs.default_vid import get_vid_config
@@ -117,7 +118,13 @@ def main(config):
     #         clothes_classifier, optimizer_cc = amp.initialize(clothes_classifier, optimizer_cc, opt_level="O1")
 
     # 4. 创建一个 GradScaler 实例. enabled 参数会根据你的 --amp 标志自动开关混合精度.
-    scaler = GradScaler(enabled=config.TRAIN.AMP)
+    scaler = torch.amp.GradScaler('cuda', enabled=config.TRAIN.AMP)
+
+    writer = None
+    if not config.EVAL_MODE and local_rank == 0:
+        tensorboard_dir = osp.join(config.OUTPUT, 'tensorboard')
+        os.makedirs(tensorboard_dir, exist_ok=True)
+        writer = SummaryWriter(log_dir=tensorboard_dir)
 
     model = nn.parallel.DistributedDataParallel(model, device_ids=[local_rank], output_device=local_rank)
     classifier = nn.parallel.DistributedDataParallel(classifier, device_ids=[local_rank], output_device=local_rank)
@@ -144,11 +151,11 @@ def main(config):
         if config.LOSS.CAL == 'calwithmemory':
             # 5. 将 scaler 传递给训练函数
             train_cal_with_memory(config, epoch, model, classifier, criterion_cla, criterion_pair, 
-                criterion_adv, optimizer, trainloader, pid2clothes, scaler)
+                criterion_adv, optimizer, trainloader, pid2clothes, scaler, writer)
         else:
             # 5. 将 scaler 传递给训练函数
             train_cal(config, epoch, model, classifier, clothes_classifier, criterion_cla, criterion_pair, 
-                criterion_clothes, criterion_adv, optimizer, optimizer_cc, trainloader, pid2clothes, scaler)
+                criterion_clothes, criterion_adv, optimizer, optimizer_cc, trainloader, pid2clothes, scaler, writer)
         train_time += round(time.time() - start_train_time)        
         
         if (epoch+1) > config.TEST.START_EVAL and config.TEST.EVAL_STEP > 0 and \
@@ -165,6 +172,9 @@ def main(config):
                 best_rank1 = rank1
                 best_epoch = epoch + 1
 
+            if writer is not None:
+                writer.add_scalar('eval/rank1', rank1, epoch + 1)
+
             model_state_dict = model.module.state_dict()
             classifier_state_dict = classifier.module.state_dict()
             if config.LOSS.CAL == 'calwithmemory':
@@ -180,8 +190,16 @@ def main(config):
                     'epoch': epoch,
                 }, is_best, osp.join(config.OUTPUT, 'checkpoint_ep' + str(epoch+1) + '.pth.tar'))
         scheduler.step()
+        if writer is not None:
+            writer.add_scalar('train/lr', optimizer.param_groups[0]['lr'], epoch + 1)
+            if config.LOSS.CAL != 'calwithmemory':
+                writer.add_scalar('train/lr_clothes', optimizer_cc.param_groups[0]['lr'], epoch + 1)
 
     logger.info("==> Best Rank-1 {:.1%}, achieved at epoch {}".format(best_rank1, best_epoch))
+
+    if writer is not None:
+        writer.add_scalar('eval/best_rank1', best_rank1, best_epoch)
+        writer.close()
 
     elapsed = round(time.time() - start_time)
     elapsed = str(datetime.timedelta(seconds=elapsed))

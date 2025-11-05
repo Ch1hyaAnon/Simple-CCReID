@@ -134,13 +134,13 @@ def test(config, model, queryloader, galleryloader, dataset):
 
     if config.DATA.DATASET in ['last', 'deepchange', 'vcclothes_sc', 'vcclothes_cc']: return cmc[0]
 
-    logger.info("Computing CMC and mAP only for the same clothes setting")
+    logger.info("Computing CMC and mAP only for the same angle setting")
     cmc, mAP = evaluate_with_clothes(distmat, q_pids, g_pids, q_camids, g_camids, q_clothes_ids, g_clothes_ids, mode='SC')
     logger.info("Results ---------------------------------------------------")
     logger.info('top1:{:.1%} top5:{:.1%} top10:{:.1%} top20:{:.1%} mAP:{:.1%}'.format(cmc[0], cmc[4], cmc[9], cmc[19], mAP))
     logger.info("-----------------------------------------------------------")
 
-    logger.info("Computing CMC and mAP only for clothes-changing")
+    logger.info("Computing CMC and mAP only for angles-changing")
     cmc, mAP = evaluate_with_clothes(distmat, q_pids, g_pids, q_camids, g_camids, q_clothes_ids, g_clothes_ids, mode='CC')
     logger.info("Results ---------------------------------------------------")
     logger.info('top1:{:.1%} top5:{:.1%} top10:{:.1%} top20:{:.1%} mAP:{:.1%}'.format(cmc[0], cmc[4], cmc[9], cmc[19], mAP))
